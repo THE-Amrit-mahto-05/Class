@@ -2,6 +2,15 @@ import os
 import shutil
 from pathlib import Path
 
+import streamlit as st
+
+st.title("My RAG App")
+
+query = st.text_input("Ask something")
+
+if query:
+    st.write("You asked:", query)
+
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import HTMLResponse

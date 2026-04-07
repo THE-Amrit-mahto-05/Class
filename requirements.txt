@@ -13,3 +13,4 @@ streamlit
 openai
 langchain
 faiss-cpu
+PromptTemplate

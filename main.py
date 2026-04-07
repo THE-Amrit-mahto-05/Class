@@ -2,6 +2,7 @@ import os
 import tempfile
 from pathlib import Path
 
+
 import streamlit as st
 from dotenv import load_dotenv
 
@@ -11,7 +12,7 @@ from langchain_groq import ChatGroq
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain.chains import RetrievalQA
-
+from langchain.prompts import PromptTemplate
 # Load environment variables
 load_dotenv()
 
@@ -49,11 +50,29 @@ def build_vector_store(documents):
 def get_qa_chain(store):
     """Create a RetrievalQA chain from the vector store."""
     llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0)
+    
+    # Define your template
+    template = """You are a helpful assistant. Use the following context to answer the question.
+    If you do not know the answer based on the context, simply say "I don't know."
+    Do not make up information.
+    
+    Context: {context}
+    
+    Question: {question}
+    """
+    
+    prompt = PromptTemplate(
+        template=template,
+        input_variables=["context", "question"]
+    )
+    
     return RetrievalQA.from_chain_type(
         llm=llm, 
         retriever=store.as_retriever(search_kwargs={"k": 3}),
         chain_type="stuff",
-        return_source_documents=True
+        return_source_documents=True,
+        # Pass the prompt here
+        chain_type_kwargs={"prompt": prompt}
     )
 
 
